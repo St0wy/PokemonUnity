@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Mouvement : MonoBehaviour
+public class Movement : MonoBehaviour
 {
     private const string AXIS_HORIZONTAL = "Horizontal";
     private const string AXIS_VERTICAL = "Vertical";
@@ -31,6 +31,7 @@ public class Mouvement : MonoBehaviour
     private Direction facing;
     private Direction oldInput;
     private float speed;
+    private float t;
     private bool isMoving;
     private int inputCounter;
     
@@ -42,6 +43,7 @@ public class Mouvement : MonoBehaviour
         pos = transform.position;
         input = new Vector2(0, 1);
         speed = 5f;
+        t = 0f;
         isMoving = false;
 
         facing = Direction.Up;
@@ -90,37 +92,14 @@ public class Mouvement : MonoBehaviour
                 StartCoroutine(Move(transform));
             }
         }
-        else
-        {
-            switch (facing)
-            {
-                case Direction.Up:
-                    sp.sprite = sprMovingUp;
-                    sp.flipX = false;
-                    break;
-                case Direction.Down:
-                    sp.sprite = sprMovingDown;
-                    sp.flipX = false;
-                    break;
-                case Direction.Left:
-                    sp.sprite = sprMovingSide;
-                    sp.flipX = false;
-                    break;
-                case Direction.Right:
-                    sp.sprite = sprMovingSide;
-                    sp.flipX = true;
-                    break;
-                default:
-                    break;
-            }
-        }
+        GetComponent<Animator>().SetFloat("Speed", t);
+        GetComponent<Animator>().SetInteger("Facing", (int)facing);
     }
 
     public IEnumerator Move(Transform transform)
     {
         isMoving = true;
         Vector3 startPosition = transform.position;
-        float t = 0f;
         Vector3 endPosition = startPosition;
 
         if (input.y < 0) //Down
@@ -146,12 +125,12 @@ public class Mouvement : MonoBehaviour
 
         while (t < 1f)
         {
-            Debug.Log(t.ToString());
-            t += Time.deltaTime * (speed);
+            Debug.Log(t.ToString());t += Time.deltaTime * (speed);
             transform.position = Vector3.Lerp(startPosition, endPosition, t);
+            
             yield return null;
         }
-
+        t = 0f;
         isMoving = false;
         yield return 0;
     }
